@@ -51,4 +51,6 @@ jobs:
         id=$(docker create aria2-mingw)
         docker cp $id:/aria2/src/aria2c.exe .
         docker rm -v $id
-        ls -lsall
+    - uses: actions/upload-artifact@v3
+      with:
+        path: aria2c.exe
