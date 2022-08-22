@@ -4,12 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-22.04]
-        compiler: [gcc, clang]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -31,7 +26,8 @@ jobs:
           zlib1g-dev \
           libsqlite3-dev \
           libssh2-1-dev \
-          libcppunit-dev
+          libcppunit-dev \
+          libgmp-dev
     - name: Libtool
       run: |
         autoreconf -i
@@ -44,3 +40,15 @@ jobs:
         make -j"$(nproc 2> /dev/null || sysctl -n hw.ncpu)" check
     - name: Ls
       run: ls -lsall src
+
+  build-docker:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Linux setup
+      run: |
+        docker build -t aria2-mingw - < Dockerfile.mingw
+        id=$(docker create aria2-mingw)
+        docker cp $id:/aria2/src/aria2c.exe .
+        docker rm -v $id
+        ls -lsall
