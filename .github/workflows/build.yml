@@ -4,40 +4,23 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: macos-11
+    env:
+      NON_RELEASE: 1
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Linux setup
-      if: runner.os == 'Linux'
+    - name: MacOS setup
       run: |
-        sudo apt-get install \
-          g++-11 \
-          mingw-w64 \
-          clang-12 \
-          autoconf \
-          automake \
-          autotools-dev \
-          autopoint \
-          libtool \
-          pkg-config \
-          libssl-dev \
-          libc-ares-dev \
-          zlib1g-dev \
-          libsqlite3-dev \
-          libssh2-1-dev \
-          libcppunit-dev \
-          libgmp-dev
-    - name: Libtool
+        brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
+          autoconf automake pkg-config libtool
+    - name: Setup clang
       run: |
-        autoreconf -i
-    - name: Configure autotools (Linux)
-      if: runner.os == 'Linux'
+        echo 'CC=clang' >> $GITHUB_ENV
+        echo 'CXX=clang++' >> $GITHUB_ENV
+    - name: Build
       run: |
-        HOST=x86_64-w64-mingw32 ./mingw-config
-    - name: Build aria2
-      run: |
-        make -j"$(nproc 2> /dev/null || sysctl -n hw.ncpu)" check
+        mv makerelease-osx.mk Makefile
+        make -j"$(nproc 2> /dev/null || sysctl -n hw.ncpu)"
     - name: Ls
       run: ls -lsall src
 
