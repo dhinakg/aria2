@@ -21,7 +21,7 @@ jobs:
     - name: Build
       run: |
         mv makerelease-osx.mk Makefile
-        make -j"$(nproc 2> /dev/null || sysctl -n hw.ncpu)"
+        make
     - name: Ls
       run: ls -lsall src
 
