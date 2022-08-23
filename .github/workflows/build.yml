@@ -9,6 +9,7 @@ jobs:
       NON_RELEASE: 1
 
     steps:
+    - uses: actions/checkout@v3
     - name: MacOS setup
       run: |
         brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
