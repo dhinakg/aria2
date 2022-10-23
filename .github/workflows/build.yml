@@ -11,6 +11,7 @@ jobs:
           - cd build-release && make
           - cd build-release && make -j"$(sysctl -n hw.ncpu)"
           - cd build-release && make deps -j"$(sysctl -n hw.ncpu)" && make -j"$(sysctl -n hw.ncpu)"
+      fail-fast: false
           
     runs-on: ${{ matrix.os }}
     env:
@@ -26,11 +27,12 @@ jobs:
       run: |
         echo 'CC=clang' >> $GITHUB_ENV
         echo 'CXX=clang++' >> $GITHUB_ENV
-    - name: Copy makefile
+    - name: Setup build
       run: |
         mkdir build-release
         cd build-release
         ln -s ../makerelease-osx.mk Makefile
+        autoreconf -i
     - name: Build
       run: ${{ matrix.run_step }}
     - name: Ls
