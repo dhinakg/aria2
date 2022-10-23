@@ -4,10 +4,18 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        os: [macos-11, macos-12]
+        run_step:
+          - make
+          - make -j"$(sysctl -n hw.ncpu)"
+          - make deps -j"$(sysctl -n hw.ncpu)"
+            make -j"$(sysctl -n hw.ncpu)"
+          
+    runs-on: ${{ matrix.os }}
     env:
       NON_RELEASE: 1
-
     steps:
     - uses: actions/checkout@v3
     - name: MacOS setup
@@ -19,63 +27,13 @@ jobs:
       run: |
         echo 'CC=clang' >> $GITHUB_ENV
         echo 'CXX=clang++' >> $GITHUB_ENV
-    - name: Build
+    - name: Copy makefile
       run: |
         mkdir build-release
         cd build-release
         ln -s ../makerelease-osx.mk Makefile
-        make
-    - name: Ls
-      run: ls -lsall src
-
-  build-v2:
-    runs-on: macos-latest
-    env:
-      NON_RELEASE: 1
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: MacOS setup
-      run: |
-        brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
-          autoconf automake pkg-config libtool
-        pip3 install sphinx
-    - name: Setup clang
-      run: |
-        echo 'CC=clang' >> $GITHUB_ENV
-        echo 'CXX=clang++' >> $GITHUB_ENV
     - name: Build
-      run: |
-        mkdir build-release
-        cd build-release
-        ln -s ../makerelease-osx.mk Makefile
-        make -j"$(sysctl -n hw.ncpu)"
-    - name: Ls
-      run: ls -lsall src
-
-  build-v3:
-    runs-on: macos-latest
-    env:
-      NON_RELEASE: 1
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: MacOS setup
-      run: |
-        brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
-          autoconf automake pkg-config libtool
-        pip3 install sphinx
-    - name: Setup clang
-      run: |
-        echo 'CC=clang' >> $GITHUB_ENV
-        echo 'CXX=clang++' >> $GITHUB_ENV
-    - name: Build
-      run: |
-        mkdir build-release
-        cd build-release
-        ln -s ../makerelease-osx.mk Makefile
-        make deps -j"$(sysctl -n hw.ncpu)"
-        make -j"$(sysctl -n hw.ncpu)"
+      run: ${{ matrix.run_step }}
     - name: Ls
       run: ls -lsall src
 
