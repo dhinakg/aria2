@@ -23,7 +23,7 @@ jobs:
       run: |
         mkdir build-release
         cd build-release
-        ln -s ../makerelease-os.mk Makefile
+        ln -s ../makerelease-osx.mk Makefile
         make
     - name: Ls
       run: ls -lsall src
@@ -48,7 +48,7 @@ jobs:
       run: |
         mkdir build-release
         cd build-release
-        ln -s ../makerelease-os.mk Makefile
+        ln -s ../makerelease-osx.mk Makefile
         make -j"$(sysctl -n hw.ncpu)"
     - name: Ls
       run: ls -lsall src
@@ -73,7 +73,7 @@ jobs:
       run: |
         mkdir build-release
         cd build-release
-        ln -s ../makerelease-os.mk Makefile
+        ln -s ../makerelease-osx.mk Makefile
         make deps -j"$(sysctl -n hw.ncpu)"
         make -j"$(sysctl -n hw.ncpu)"
     - name: Ls
