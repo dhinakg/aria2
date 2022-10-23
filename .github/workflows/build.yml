@@ -24,7 +24,8 @@ jobs:
         mkdir build-release
         cd build-release
         ln -s ../makerelease-os.mk Makefile
-        make
+        make deps -j"$(sysctl -n hw.ncpu)"
+        make -j"$(sysctl -n hw.ncpu)"
     - name: Ls
       run: ls -lsall src
 
