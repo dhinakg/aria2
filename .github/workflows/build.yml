@@ -29,10 +29,10 @@ jobs:
         echo 'CXX=clang++' >> $GITHUB_ENV
     - name: Setup build
       run: |
+        autoreconf -i
         mkdir build-release
         cd build-release
         ln -s ../makerelease-osx.mk Makefile
-        autoreconf -i
     - name: Build
       run: ${{ matrix.run_step }}
     - name: Ls
