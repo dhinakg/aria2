@@ -4,7 +4,57 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: macos-11
+    runs-on: macos-latest
+    env:
+      NON_RELEASE: 1
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: MacOS setup
+      run: |
+        brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
+          autoconf automake pkg-config libtool
+        pip3 install sphinx
+    - name: Setup clang
+      run: |
+        echo 'CC=clang' >> $GITHUB_ENV
+        echo 'CXX=clang++' >> $GITHUB_ENV
+    - name: Build
+      run: |
+        mkdir build-release
+        cd build-release
+        ln -s ../makerelease-os.mk Makefile
+        make
+    - name: Ls
+      run: ls -lsall src
+
+  build-v2:
+    runs-on: macos-latest
+    env:
+      NON_RELEASE: 1
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: MacOS setup
+      run: |
+        brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
+          autoconf automake pkg-config libtool
+        pip3 install sphinx
+    - name: Setup clang
+      run: |
+        echo 'CC=clang' >> $GITHUB_ENV
+        echo 'CXX=clang++' >> $GITHUB_ENV
+    - name: Build
+      run: |
+        mkdir build-release
+        cd build-release
+        ln -s ../makerelease-os.mk Makefile
+        make -j"$(sysctl -n hw.ncpu)"
+    - name: Ls
+      run: ls -lsall src
+
+  build-v3:
+    runs-on: macos-latest
     env:
       NON_RELEASE: 1
 
