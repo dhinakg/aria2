@@ -64,7 +64,7 @@ jobs:
       run: |
         brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
           autoconf automake pkg-config libtool
-        pip3 install sphinx-build
+        pip3 install sphinx
     - name: Setup clang
       run: |
         echo 'CC=clang' >> $GITHUB_ENV
