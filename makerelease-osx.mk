@@ -130,6 +130,7 @@ gmp_url = https://ftp.gnu.org/gnu/gmp/gmp-$(gmp_version).tar.bz2
 gmp_confflags = --disable-cxx --enable-assembly --with-pic --enable-fat
 gmp_cflags=$(CFLAGS)
 gmp_cxxflags=$(CXXFLAGS)
+gmp_nocheck = yes
 
 libgpgerror_version = 1.36
 libgpgerror_hash = babd98437208c163175c29453f8681094bcaf92968a15cafb1a276076b33c97c
