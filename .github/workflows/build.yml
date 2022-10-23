@@ -34,7 +34,7 @@ jobs:
     - name: Build
       run: ${{ matrix.run_step }}
     - name: Ls
-      run: ls -lsall src
+      run: ls -lsall build-release
 
   build-docker:
     runs-on: ubuntu-22.04
