@@ -8,10 +8,9 @@ jobs:
       matrix:
         os: [macos-11, macos-12]
         run_step:
-          - make
-          - make -j"$(sysctl -n hw.ncpu)"
-          - make deps -j"$(sysctl -n hw.ncpu)"
-            make -j"$(sysctl -n hw.ncpu)"
+          - cd build-release && make
+          - cd build-release && make -j"$(sysctl -n hw.ncpu)"
+          - cd build-release && make deps -j"$(sysctl -n hw.ncpu)" && make -j"$(sysctl -n hw.ncpu)"
           
     runs-on: ${{ matrix.os }}
     env:
