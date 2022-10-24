@@ -21,7 +21,7 @@ jobs:
     - name: MacOS setup
       run: |
         brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
-          autoconf automake pkg-config libtool
+          autoconf automake pkg-config libtool gnu-sed
         pip3 install sphinx
     - name: Setup clang
       run: |
