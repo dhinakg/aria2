@@ -9,7 +9,7 @@ jobs:
         os: [macos-11, macos-12]
         run_step:
           - cd build-release && make
-#           - cd build-release && make -j"$(sysctl -n hw.ncpu)"
+          - cd build-release && make -j"$(sysctl -n hw.ncpu)"
           - cd build-release && make deps -j"$(sysctl -n hw.ncpu)" && make -j"$(sysctl -n hw.ncpu)"
       fail-fast: false
           
@@ -38,6 +38,45 @@ jobs:
       run: ${{ matrix.run_step }}
     - name: Ls
       run: ls -lsall build-release
+
+  build-no-makefile:
+    strategy:
+      matrix:
+        os: [macos-11, macos-12]
+        run_step:
+        -  make
+          - make -j"$(sysctl -n hw.ncpu)"
+          - make deps -j"$(sysctl -n hw.ncpu)" && make -j"$(sysctl -n hw.ncpu)"
+      fail-fast: false
+          
+    runs-on: ${{ matrix.os }}
+    env:
+      NON_RELEASE: 1
+    steps:
+    - uses: actions/checkout@v3
+    - name: MacOS setup
+      run: |
+        brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
+          autoconf automake pkg-config libtool gnu-sed
+        echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+        pip3 install sphinx
+    - name: Setup clang
+      run: |
+        echo 'CC=clang' >> $GITHUB_ENV
+        echo 'CXX=clang++' >> $GITHUB_ENV
+    - name: Setup build
+      run: |
+        autoreconf -i
+        ./configure \
+          --without-openssl --without-gnutls --with-appletls \
+          --disable-nls \
+          CPPFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
+    - name: Build
+      run: ${{ matrix.run_step }}
+    - name: Ls
+      run: ls -lsall build-release
+
+
 
   build-docker:
     runs-on: ubuntu-22.04
