@@ -22,6 +22,7 @@ jobs:
       run: |
         brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
           autoconf automake pkg-config libtool gnu-sed
+        echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
         pip3 install sphinx
     - name: Setup clang
       run: |
