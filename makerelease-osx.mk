@@ -425,7 +425,7 @@ $(ARIA2_DIST).dmg: $(ARIA2_DIST).pkg
 		-volname "aria2 $(VERSION) Intel" \
 		-ov
 	hdiutil convert -format UDBZ -o $@ $@.uncompressed.dmg
-	hdiutil flatten $@
+	# hdiutil flatten $@
 	rm -rf $@.uncompressed.dmg dmg
 
 dist.build: $(ARIA2_DIST).tar.bz2 $(ARIA2_DIST).pkg $(ARIA2_DIST).dmg
