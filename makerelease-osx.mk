@@ -101,7 +101,7 @@ export LDFLAGS
 LTO_FLAGS = -flto -ffunction-sections -fdata-sections
 
 # Dependency versions
-zlib_version = 1.2.13
+zlib_version = 1.3
 zlib_hash = ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e
 zlib_url = http://zlib.net/zlib-$(zlib_version).tar.gz
 
