@@ -152,7 +152,7 @@ libssh2_url = https://www.libssh2.org/download/libssh2-$(libssh2_version).tar.gz
 libssh2_cflags=$(CFLAGS) $(LTO_FLAGS)
 libssh2_cxxflags=$(CXXFLAGS) $(LTO_FLAGS)
 libssh2_ldflags=$(CFLAGS) $(LTO_FLAGS)
-libssh2_confflags = --with-pic --without-openssl --with-libgcrypt=$(PWD)/arch --with-libgcrypt-prefix=$(PWD)/arch
+libssh2_confflags = --with-pic --with-crypto=libgcrypt --with-libgcrypt-prefix=$(PWD)/arch
 libssh2_nocheck = yes
 
 cppunit_version = 1.12.1
