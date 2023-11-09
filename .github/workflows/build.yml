@@ -11,10 +11,12 @@ jobs:
     strategy:
       matrix:
         os: [macos-11, macos-12, macos-13]
-        run_step:
-          - cd build-release && make
-          # - cd build-release && make -j"$(sysctl -n hw.ncpu)"
-          # - cd build-release && make deps -j"$(sysctl -n hw.ncpu)" && make -j"$(sysctl -n hw.ncpu)"
+        deps_step:
+          - make deps
+          # - make deps -j"$(sysctl -n hw.ncpu)"
+        build_step:
+          - make
+          - make -j"$(sysctl -n hw.ncpu)"
       fail-fast: false
           
     runs-on: ${{ matrix.os }}
@@ -41,8 +43,14 @@ jobs:
         mkdir build-release
         cd build-release
         ln -s ../makerelease-osx.mk Makefile
+    - name: Build Dependencies
+      run: |
+        cd build-release
+        ${{ matrix.deps_step }}
     - name: Build
-      run: ${{ matrix.run_step }}
+      run: |
+        cd build-release
+        ${{ matrix.build_step }}
     - uses: actions/upload-artifact@v3
       with:
         name: Build makefile ${{ matrix.os }}
@@ -54,94 +62,6 @@ jobs:
     #   with:
     #     name: Build makefile ${{ matrix.os }} artifacts
     #     path: build-release/
-
-  # build-no-makefile:
-  #   strategy:
-  #     matrix:
-  #       os: [macos-11, macos-12, macos-13]
-  #       run_step:
-  #         # - make
-  #         # - make -j"$(sysctl -n hw.ncpu)"
-  #         - make deps -j"$(sysctl -n hw.ncpu)" && make -j"$(sysctl -n hw.ncpu)"
-  #     fail-fast: false
-          
-  #   runs-on: ${{ matrix.os }}
-  #   env:
-  #     NON_RELEASE: 1
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Get tags
-  #     run: git fetch --prune --unshallow --tags
-
-  #   - name: MacOS setup
-  #     run: |
-  #       brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
-  #         autoconf automake pkg-config libtool gnu-sed tree
-  #       echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-  #       pip3 install sphinx
-  #   - name: Setup clang
-  #     run: |
-  #       echo 'CC=clang' >> $GITHUB_ENV
-  #       echo 'CXX=clang++' >> $GITHUB_ENV
-  #   - name: Setup build
-  #     run: |
-  #       autoreconf -i
-  #       ./configure \
-  #         --without-openssl --without-gnutls --with-appletls \
-  #         --disable-nls \
-  #         CPPFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
-  #   - name: Build
-  #     run: ${{ matrix.run_step }}
-  #   - uses: actions/upload-artifact@v3
-  #     with:
-  #       name: Build no makefile ${{ matrix.os }}
-  #       path: src/aria2c
-    
-
-  # build-no-makefile-2:
-  #   strategy:
-  #     matrix:
-  #       os: [macos-11, macos-12, macos-13]
-  #       run_step:
-  #         # - make
-  #         # - make -j"$(sysctl -n hw.ncpu)"
-  #         - make deps -j"$(sysctl -n hw.ncpu)" && make -j"$(sysctl -n hw.ncpu)"
-  #     fail-fast: false
-          
-  #   runs-on: ${{ matrix.os }}
-  #   env:
-  #     NON_RELEASE: 1
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Get tags
-  #     run: git fetch --prune --unshallow --tags
-
-  #   - name: MacOS setup
-  #     run: |
-  #       brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
-  #         autoconf automake pkg-config libtool gnu-sed tree
-  #       echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-  #       pip3 install sphinx
-  #   - name: Setup clang
-  #     run: |
-  #       echo 'CC=clang' >> $GITHUB_ENV
-  #       echo 'CXX=clang++' >> $GITHUB_ENV
-  #   - name: Setup build
-  #     run: |
-  #       autoreconf -i
-  #       ./configure \
-  #         --without-openssl --without-gnutls --with-appletls \
-  #         --disable-nls \
-  #         --with-libssh2 --without-libgmp --without-libnettle --without-libgcrypt \
-  #         CPPFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
-  #   - name: Build
-  #     run: ${{ matrix.run_step }}
-  #   - uses: actions/upload-artifact@v3
-  #     with:
-  #       name: Build no makefile 2 ${{ matrix.os }}
-  #       path: src/aria2c
-    
-
 
   build-docker:
     runs-on: ubuntu-22.04

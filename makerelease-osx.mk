@@ -266,7 +266,7 @@ deps::
 # intermediates and remove them when the build completes. Thanks gmake!
 .PRECIOUS: %.tar.gz
 %.tar.gz:
-	curl -o $@ -A 'curl/0; like wget' -L \
+	curl -o $@ -A 'curl/0; like wget' -LfsS \
 		$($(basename $(basename $@))_url)
 
 .PRECIOUS: %.check
