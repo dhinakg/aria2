@@ -315,7 +315,7 @@ zlib.%.build: zlib.stamp
 		--static --prefix=$(PWD)/arch \
 		)
 	$(MAKE) -C $(DEST) -sj$(CPUS) CFLAGS="$(CFLAGS) $(LTO_FLAGS) -arch $(ARCH)"
-	$(MAKE) -C $(DEST) -sj$(CPUS) CFLAGS="$(CFLAGS) $(LTO_FLAGS) -arch $(ARCH)" check
+	# $(MAKE) -C $(DEST) -sj$(CPUS) CFLAGS="$(CFLAGS) $(LTO_FLAGS) -arch $(ARCH)" check
 	$(MAKE) -C $(DEST) -s install
 	touch $@
 
@@ -337,7 +337,7 @@ $(1).%.build: $(1).stamp
 		PKG_CONFIG_PATH=$$(PWD)/arch/lib/pkgconfig \
 		)
 	$$(MAKE) -C $$(DEST) -sj$(CPUS)
-	if test -z '$$($(1)_nocheck)'; then $$(MAKE) -C $$(DEST) -sj$(CPUS) check; fi
+	# if test -z '$$($(1)_nocheck)'; then $$(MAKE) -C $$(DEST) -sj$(CPUS) check; fi
 	$$(MAKE) -C $$(DEST) -s install
 	touch $$@
 

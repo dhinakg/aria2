@@ -13,7 +13,7 @@ jobs:
         os: [macos-11, macos-12, macos-13]
         deps_step:
           - make deps
-          # - make deps -j"$(sysctl -n hw.ncpu)"
+          - make deps -j"$(sysctl -n hw.ncpu)"
         build_step:
           - make
           - make -j"$(sysctl -n hw.ncpu)"
