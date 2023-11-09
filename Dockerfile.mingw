@@ -30,7 +30,7 @@ RUN apt-get update && \
         pkg-config git curl dpkg-dev gcc-mingw-w64 g++-mingw-w64 \
         autopoint libcppunit-dev libxml2-dev libgcrypt20-dev lzip
 
-RUN curl -L -O https://gmplib.org/download/gmp/gmp-6.2.1.tar.lz && \
+RUN curl -L -O https://ftp.gnu.org/gnu/gmp/gmp-6.2.1.tar.lz && \
     curl -L -O https://github.com/libexpat/libexpat/releases/download/R_2_4_1/expat-2.4.1.tar.bz2 && \
     curl -L -O https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz && \
     curl -L -O http://zlib.net/zlib-1.2.13.tar.gz && \
