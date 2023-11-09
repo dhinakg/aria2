@@ -349,6 +349,9 @@ endef
 
 $(foreach lib,$(ARCHLIBS),$(eval $(call ARCH_template,$(lib))))
 
+libgcrypt.%.build: libgpgerror.%.build
+libssh2.%.build: libgcrypt.%.build
+
 .PRECIOUS: aria2.%.build
 aria2.%.build: zlib.%.build expat.%.build gmp.%.build cares.%.build sqlite.%.build libgpgerror.%.build libgcrypt.%.build libssh2.%.build cppunit.%.build
 	$(eval DEST := $$(basename $$@))
