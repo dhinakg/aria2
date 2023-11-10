@@ -12,11 +12,12 @@ jobs:
       matrix:
         os: [macos-11, macos-12, macos-13]
         deps_step:
-          - make deps
+          # - make deps
           # - make deps -j"$(sysctl -n hw.ncpu)"
           - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build cppunit.build -j"$(sysctl -n hw.ncpu)" && make libgcrypt.build -j"$(sysctl -n hw.ncpu)" && make libssh2.build -j"$(sysctl -n hw.ncpu)"
         build_step:
           - make
+          - make -j2
           - make -j"$(sysctl -n hw.ncpu)"
       fail-fast: false
 
