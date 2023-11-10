@@ -29,10 +29,15 @@ jobs:
       - name: Get tags
         run: git fetch --prune --unshallow --tags
 
+      # - name: MacOS setup
+      #   run: |
+      #     brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
+      #       autoconf automake pkg-config libtool gnu-sed tree
+      #     echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+      #     pip3 install sphinx
       - name: MacOS setup
         run: |
-          brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
-            autoconf automake pkg-config libtool gnu-sed tree
+          brew install autoconf automake pkg-config libtool gnu-sed tree
           echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
           pip3 install sphinx
       - name: Setup clang
