@@ -17,7 +17,8 @@ WORKDIR /root
 RUN apt-get update && \
     apt-get install -y  --no-install-recommends \
       unzip bzip2 make binutils autoconf automake autotools-dev autopoint \
-      libtool pkg-config git dpkg-dev curl ca-certificates && \
+      libtool pkg-config git dpkg-dev curl ca-certificates \
+      python3-docutils && \
     rm -rf /var/cache/apt/*
 
 # NDK version
@@ -55,7 +56,7 @@ ENV ZLIB_VERSION=1.3
 ENV ZLIB_ARCHIVE=zlib-$ZLIB_VERSION.tar.gz
 ENV ZLIB_URI=https://zlib.net/$ZLIB_ARCHIVE
 
-ENV CARES_VERSION=1.19.1
+ENV CARES_VERSION=1.21.0
 ENV CARES_ARCHIVE=c-ares-$CARES_VERSION.tar.gz
 ENV CARES_URI=https://c-ares.haxx.se/download/$CARES_ARCHIVE
 
