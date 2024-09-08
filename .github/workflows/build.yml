@@ -77,60 +77,31 @@ jobs:
       run: |
         asanflags="-fsanitize=address,undefined -fno-sanitize-recover=undefined"
 
-      # - name: MacOS setup
-      #   run: |
-      #     brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
-      #       autoconf automake pkg-config libtool gnu-sed tree
-      #     echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-      #     pip3 install sphinx
-      - name: MacOS setup
-        run: |
-          brew install autoconf automake pkg-config libtool gnu-sed tree
-          echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-          pip3 install sphinx
-      - name: Setup clang
-        run: |
-          echo 'CC=clang' >> $GITHUB_ENV
-          echo 'CXX=clang++' >> $GITHUB_ENV
-      - name: Setup build
-        run: |
-          autoreconf -i
-          mkdir build-release
-          cd build-release
-          ln -s ../makerelease-osx.mk Makefile
-      - name: Build Dependencies
-        run: |
-          cd build-release
-          ${{ matrix.deps_step }}
-      - name: Build
-        run: |
-          cd build-release
-          ${{ matrix.build_step }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Build makefile ${{ matrix.os }}
-          path: |
-            build-release/aria2*.dmg
-            build-release/aria2*.pkg
-            build-release/aria2*.tar.bz2
-    # - uses: actions/upload-artifact@v3
-    #   with:
-    #     name: Build makefile ${{ matrix.os }} artifacts
-    #     path: build-release/
+        CPPFLAGS="$asanflags -g3"
+        LDFLAGS="$asanflags"
 
-  build-docker:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Get tags
-        run: git fetch --prune --unshallow --tags
+        echo 'CPPFLAGS='"$CPPFLAGS" >> $GITHUB_ENV
+        echo 'LDFLAGS='"$LDFLAGS" >> $GITHUB_ENV
+    - name: Disable BitTorrent
+      if: matrix.bittorrent == 'without-bt'
+      run: |
+        FEATURE_FLAGS="$FEATURE_FLAGS --disable-bittorrent"
 
-      - name: Linux setup
-        run: |
-          docker build -t aria2-mingw - < Dockerfile.mingw
-          id=$(docker create aria2-mingw)
-          docker cp $id:/aria2/src/aria2c.exe .
-          docker rm -v $id
-      - uses: actions/upload-artifact@v3
-        with:
-          path: aria2c.exe
+        echo 'FEATURE_FLAGS='"$FEATURE_FLAGS" >> $GITHUB_ENV
+    - name: Configure autotools (Linux, gnutls)
+      if: runner.os == 'Linux' && matrix.crypto == 'gnutls'
+      run: |
+        ./configure --with-gnutls --without-openssl $FEATURE_FLAGS
+    - name: Configure autotools (Linux, openssl)
+      if: runner.os == 'Linux' && matrix.crypto == 'openssl'
+      run: |
+        ./configure --without-gnutls --with-openssl $FEATURE_FLAGS
+    - name: Configure autotools (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        ./configure \
+          --without-openssl --without-gnutls --with-appletls \
+          --disable-nls
+    - name: Build aria2
+      run: |
+        make -j"$(nproc 2> /dev/null || sysctl -n hw.ncpu)" check
