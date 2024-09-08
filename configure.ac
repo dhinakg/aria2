@@ -39,7 +39,7 @@ case "$host" in
     # available from <time.h> even without (un)helpful interference
     # from <pthread.h>, and also defines __USE_MINGW_ANSI_STDIO.
     EXTRACPPFLAGS="$EXTRACPPFLAGS -D_POSIX_C_SOURCE=1"
-    # Build with ASLR (dynamicbase) and NX compatiblity (nxcompat)
+    # Build with ASLR (dynamicbase) and NX compatibility (nxcompat)
     # Enable pie once upstream/binutils gets fixed to produce correct
     # binaries with it.
     EXTRALDFLAGS="$EXTRALDFLAGS -Wl,--dynamicbase -Wl,--nxcompat"
@@ -503,18 +503,10 @@ fi
 
 have_libcares=no
 if test "x$with_libcares" = "xyes"; then
-  PKG_CHECK_MODULES([LIBCARES], [libcares >= 1.7.0], [have_libcares=yes],
+  PKG_CHECK_MODULES([LIBCARES], [libcares >= 1.16.0], [have_libcares=yes],
                     [have_libcares=no])
   if test "x$have_libcares" = "xyes"; then
     AC_DEFINE([HAVE_LIBCARES], [1], [Define to 1 if you have libcares.])
-    save_LIBS=$LIBS
-    save_CPPFLAGS=$CPPFLAGS
-    LIBS="$LIBCARES_LIBS $LIBS"
-    CPPFLAGS="$LIBCARES_CFLAGS $CPPFLAGS"
-    AC_CHECK_TYPES([ares_addr_node], [], [], [[#include <ares.h>]])
-    AC_CHECK_FUNCS([ares_set_servers])
-    LIBS=$save_LIBS
-    CPPFLAGS=$save_CPPFLAGS
 
     # -DCARES_STATICLIB is appended by pkg-config file libcares.pc
   else
@@ -737,7 +729,7 @@ fi
 
 # Checks for library functions.
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.18])
+AM_GNU_GETTEXT_VERSION([0.19])
 AC_FUNC_ERROR_AT_LINE
 AC_PROG_GCC_TRADITIONAL
 
@@ -749,7 +741,7 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_FUNC_FORK
 AC_FUNC_STRTOD
-# Don't use AC_FUNC_MMAP becaue it fails on some platforms (e.g.,
+# Don't use AC_FUNC_MMAP because it fails on some platforms (e.g.,
 # OpenWRT) which have mmap and it works in the way we use in aria2.
 # Instead use mmap in AC_CHECK_FUNCS list.
 AC_CHECK_FUNCS([__argz_count \

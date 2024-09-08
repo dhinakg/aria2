@@ -10,72 +10,26 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-14]
-        compiler: [gcc, clang]
-        crypto: [openssl, gnutls]
-        bittorrent: [with-bt, without-bt]
-        exclude:
-        - os: macos-14
-          crypto: gnutls
-        - crypto: openssl
-          bittorrent: without-bt
+        os: [macos-11, macos-12, macos-13]
+        deps_step:
+          # - make deps
+          # - make deps -j"$(sysctl -n hw.ncpu)"
+          - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build cppunit.build && make libgcrypt.build && make libssh2.build
+          - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build cppunit.build -j2 && make libgcrypt.build -j2 && make libssh2.build -j2
+          - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build cppunit.build -j"$(sysctl -n hw.ncpu)" && make libgcrypt.build -j"$(sysctl -n hw.ncpu)" && make libssh2.build -j"$(sysctl -n hw.ncpu)"
+        build_step:
+          - make
+          - make -j2
+          - make -j"$(sysctl -n hw.ncpu)"
+      fail-fast: false
 
     runs-on: ${{ matrix.os }}
     env:
       NON_RELEASE: 1
     steps:
-    - uses: actions/checkout@v4
-    - name: Linux setup
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install \
-          g++-12 \
-          clang-15 \
-          autoconf \
-          automake \
-          autotools-dev \
-          autopoint \
-          libtool \
-          pkg-config \
-          libssl-dev \
-          libgnutls28-dev \
-          libc-ares-dev \
-          zlib1g-dev \
-          libsqlite3-dev \
-          libssh2-1-dev \
-          libcppunit-dev
-    - name: MacOS setup
-      if: runner.os == 'macOS'
-      run: |
-        brew install cppunit gettext openssl libssh2 c-ares sqlite3 \
-          autoconf automake pkg-config libtool
-    - name: Setup clang (Linux)
-      if: runner.os == 'Linux' && matrix.compiler == 'clang'
-      run: |
-        echo 'CC=clang-15' >> $GITHUB_ENV
-        echo 'CXX=clang++-15' >> $GITHUB_ENV
-    - name: Setup clang (MacOS)
-      if: runner.os == 'macOS' && matrix.compiler == 'clang'
-      run: |
-        echo 'CC=clang' >> $GITHUB_ENV
-        echo 'CXX=clang++' >> $GITHUB_ENV
-    - name: Setup gcc (Linux)
-      if: runner.os == 'Linux' && matrix.compiler == 'gcc'
-      run: |
-        echo 'CC=gcc-12' >> $GITHUB_ENV
-        echo 'CXX=g++-12' >> $GITHUB_ENV
-    - name: Setup gcc (MacOS)
-      if: runner.os == 'macOS' && matrix.compiler == 'gcc'
-      run: |
-        echo 'CC=gcc' >> $GITHUB_ENV
-        echo 'CXX=g++' >> $GITHUB_ENV
-    - name: Libtool
-      run: |
-        autoreconf -i
-    - name: Setup compiler flags
-      run: |
-        asanflags="-fsanitize=address,undefined -fno-sanitize-recover=undefined"
+      - uses: actions/checkout@v3
+      - name: Get tags
+        run: git fetch --prune --unshallow --tags
 
       # - name: MacOS setup
       #   run: |
