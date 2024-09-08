@@ -12,15 +12,15 @@ jobs:
       matrix:
         os: [macos-12, macos-13, macos-14]
         deps_step:
-          - make deps
+          # - make deps
           # - make deps -j2
           # - make deps -j"$(sysctl -n hw.ncpu)"
-          - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build && make libgcrypt.build && make libssh2.build
-          - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build -j2 && make libgcrypt.build -j2 && make libssh2.build -j2
+          # - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build && make libgcrypt.build && make libssh2.build
+          # - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build -j2 && make libgcrypt.build -j2 && make libssh2.build -j2
           - make zlib.build expat.build gmp.build cares.build sqlite.build libgpgerror.build -j"$(sysctl -n hw.ncpu)" && make libgcrypt.build -j"$(sysctl -n hw.ncpu)" && make libssh2.build -j"$(sysctl -n hw.ncpu)"
         build_step:
-          - make
-          - make -j2
+          # - make
+          # - make -j2
           - make -j"$(sysctl -n hw.ncpu)"
       fail-fast: false
 
@@ -42,7 +42,6 @@ jobs:
         run: |
           brew install autoconf automake pkg-config libtool gnu-sed tree
           echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-          pip3 install sphinx
       - name: Setup clang
         run: |
           echo 'CC=clang' >> $GITHUB_ENV
@@ -63,7 +62,7 @@ jobs:
           ${{ matrix.build_step }}
       - uses: actions/upload-artifact@v4
         with:
-          name: Build makefile ${{ matrix.os }} ${{ matrix.deps_step }} ${{ matrix.build_step }} artifacts
+          name: Build makefile ${{ matrix.os }} artifacts
           path: |
             build-release/aria2*.dmg
             build-release/aria2*.pkg
