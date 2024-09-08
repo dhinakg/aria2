@@ -89,7 +89,7 @@ CXX = c++ -stdlib=libc++
 export CXX
 
 # Set up compiler/linker flags.
-PLATFORMFLAGS ?= -mmacosx-version-min=10.10
+PLATFORMFLAGS ?= -mmacosx-version-min=10.12
 OPTFLAGS ?= -Os
 CFLAGS ?= $(PLATFORMFLAGS) $(OPTFLAGS)
 export CFLAGS
@@ -105,27 +105,27 @@ zlib_version = 1.3.1
 zlib_hash = 9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
 zlib_url = http://zlib.net/zlib-$(zlib_version).tar.gz
 
-expat_version = 2.2.8
-expat_hash = bd507cba42716ca9afe46dd3687fb0d46c09347517beb9770f53a435d2c67ea0
-expat_url = https://github.com/libexpat/libexpat/releases/download/R_2_2_8/expat-2.2.8.tar.gz
+expat_version = 2.6.3
+expat_hash = 17aa6cfc5c4c219c09287abfc10bc13f0c06f30bb654b28bfe6f567ca646eb79
+expat_url = https://github.com/libexpat/libexpat/releases/download/R_2_6_3/expat-$(expat_version).tar.gz
 expat_cflags=$(CFLAGS) $(LTO_FLAGS)
 expat_ldflags=$(CFLAGS) $(LTO_FLAGS)
 
-cares_version = 1.30.0
-cares_hash = 4fea312112021bcef081203b1ea020109842feb58cd8a36a3d3f7e0d8bc1138c
+cares_version = 1.33.1
+cares_hash = 06869824094745872fa26efd4c48e622b9bd82a89ef0ce693dc682a23604f415
 cares_url = https://github.com/c-ares/c-ares/releases/download/v$(cares_version)/c-ares-$(cares_version).tar.gz
 cares_confflags = "--enable-optimize=$(OPTFLAGS)"
 cares_cflags=$(CFLAGS) $(LTO_FLAGS)
 cares_ldflags=$(CFLAGS) $(LTO_FLAGS)
 
-sqlite_version = autoconf-3300000
-sqlite_hash = e0a8cf4c7a87455e55e10413d16f358ca121ccec687fe1301eac95e2d340fc58
-sqlite_url = https://sqlite.org/2019/sqlite-$(sqlite_version).tar.gz
+sqlite_version = autoconf-3430100
+sqlite_hash = 39116c94e76630f22d54cd82c3cea308565f1715f716d1b2527f1c9c969ba4d9
+sqlite_url = https://sqlite.org/2023/sqlite-$(sqlite_version).tar.gz
 sqlite_cflags=$(CFLAGS) $(LTO_FLAGS)
 sqlite_ldflags=$(CFLAGS) $(LTO_FLAGS)
 
-gmp_version = 6.1.2
-gmp_hash = 5275bb04f4863a13516b2f39392ac5e272f5e1bb8057b18aec1c9b79d73d8fb2
+gmp_version = 6.3.0
+gmp_hash = ac28211a7cfb609bae2e2c8d6058d66c8fe96434f740cf6fe2e47b000d1c20cb
 gmp_url = https://ftp.gnu.org/gnu/gmp/gmp-$(gmp_version).tar.bz2
 gmp_confflags = --disable-cxx --enable-assembly --with-pic --enable-fat
 gmp_cflags=$(CFLAGS)
@@ -146,8 +146,8 @@ libgcrypt_confflags=--with-gpg-error-prefix=$(PWD)/arch --disable-O-flag-munging
 libgcrypt_cflags=$(PLATFORMFLAGS)
 libgcrypt_cxxflags=$(PLATFORMFLAGS)
 
-libssh2_version = 1.9.0
-libssh2_hash = d5fb8bd563305fd1074dda90bd053fb2d29fc4bce048d182f96eaa466dfadafd
+libssh2_version = 1.11.0
+libssh2_hash = 3736161e41e2693324deb38c26cfdc3efe6209d634ba4258db1cecff6a5ad461
 libssh2_url = https://www.libssh2.org/download/libssh2-$(libssh2_version).tar.gz
 libssh2_cflags=$(CFLAGS) $(LTO_FLAGS)
 libssh2_cxxflags=$(CXXFLAGS) $(LTO_FLAGS)
@@ -253,11 +253,11 @@ all::
 	fi
 
 # No dice without sphinx
-all::
-	@if test "x$$(which sphinx-build)" = "x"; then \
-		echo "sphinx-build not present"; \
-		exit 1; \
-	fi;
+# all::
+# 	@if test "x$$(which sphinx-build)" = "x"; then \
+# 		echo "sphinx-build not present"; \
+# 		exit 1; \
+# 	fi;
 
 deps::
 
@@ -328,6 +328,7 @@ $(1).%.build: $(1).stamp
 	$$(eval ARCH := $$(subst .,,$$(suffix $$(DEST))))
 	mkdir -p $$(DEST)
 	( cd $$(DEST) && ../$(1)/configure \
+		--host $$(ARCH)-apple-darwin \
 		--enable-static --disable-shared \
 		--prefix=$(PWD)/arch \
 		$$($(1)_confflags) \
