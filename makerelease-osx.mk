@@ -111,9 +111,9 @@ expat_url = https://github.com/libexpat/libexpat/releases/download/R_2_2_8/expat
 expat_cflags=$(CFLAGS) $(LTO_FLAGS)
 expat_ldflags=$(CFLAGS) $(LTO_FLAGS)
 
-cares_version = 1.15.0
-cares_hash = 6cdb97871f2930530c97deb7cf5c8fa4be5a0b02c7cea6e7c7667672a39d6852
-cares_url = https://c-ares.haxx.se/download/c-ares-$(cares_version).tar.gz
+cares_version = 1.30.0
+cares_hash = 4fea312112021bcef081203b1ea020109842feb58cd8a36a3d3f7e0d8bc1138c
+cares_url = https://github.com/c-ares/c-ares/releases/download/v$(cares_version)/c-ares-$(cares_version).tar.gz
 cares_confflags = "--enable-optimize=$(OPTFLAGS)"
 cares_cflags=$(CFLAGS) $(LTO_FLAGS)
 cares_ldflags=$(CFLAGS) $(LTO_FLAGS)
