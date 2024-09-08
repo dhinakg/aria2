@@ -359,7 +359,7 @@ aria2.%.build: zlib.%.build expat.%.build gmp.%.build cares.%.build sqlite.%.bui
 	$(eval ARCH := $$(subst .,,$$(suffix $$(DEST))))
 	mkdir -p $(DEST)
 	( cd $(DEST) && ../$(SRCDIR)/configure \
-		--host $$(ARCH)-apple-darwin \
+		--host $(ARCH)-apple-darwin \
 		--prefix=$(ARIA2_PREFIX) \
 		--bindir=$(PWD)/$(DEST) \
 		--sysconfdir=/etc \
