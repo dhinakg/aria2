@@ -105,3 +105,10 @@ jobs:
     - name: Build aria2
       run: |
         make -j"$(nproc 2> /dev/null || sysctl -n hw.ncpu)" check
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Build makefile ${{ matrix.os }} ${{ matrix.compiler }} ${{ matrix.crypto }} ${{ matrix.bittorrent }}
+        path: |
+          build-release/aria2*.dmg
+          build-release/aria2*.pkg
+          build-release/aria2*.tar.bz2
