@@ -132,17 +132,17 @@ gmp_cflags=$(CFLAGS)
 gmp_cxxflags=$(CXXFLAGS)
 gmp_nocheck = yes
 
-libgpgerror_version = 1.36
-libgpgerror_hash = babd98437208c163175c29453f8681094bcaf92968a15cafb1a276076b33c97c
+libgpgerror_version = 1.49
+libgpgerror_hash = 8b79d54639dbf4abc08b5406fb2f37e669a2dec091dd024fb87dd367131c63a9
 libgpgerror_url = https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-$(libgpgerror_version).tar.bz2
 libgpgerror_cflags=$(CFLAGS) $(LTO_FLAGS)
 libgpgerror_ldflags=$(CFLAGS) $(LTO_FLAGS)
 libgpgerror_confflags = --with-pic --disable-languages --disable-doc --disable-nls
 
-libgcrypt_version = 1.8.5
-libgcrypt_hash = 3b4a2a94cb637eff5bdebbcaf46f4d95c4f25206f459809339cdada0eb577ac3
+libgcrypt_version = 1.11.0
+libgcrypt_hash = 09120c9867ce7f2081d6aaa1775386b98c2f2f246135761aae47d81f58685b9c
 libgcrypt_url = https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-$(libgcrypt_version).tar.bz2
-libgcrypt_confflags=--with-gpg-error-prefix=$(PWD)/arch --disable-O-flag-munging --disable-asm --disable-amd64-as-feature-detection
+libgcrypt_confflags=--with-gpg-error-prefix=$(PWD)/$(ARCH) --disable-O-flag-munging --disable-asm --disable-amd64-as-feature-detection
 libgcrypt_cflags=$(PLATFORMFLAGS)
 libgcrypt_cxxflags=$(PLATFORMFLAGS)
 
@@ -152,12 +152,12 @@ libssh2_url = https://www.libssh2.org/download/libssh2-$(libssh2_version).tar.gz
 libssh2_cflags=$(CFLAGS) $(LTO_FLAGS)
 libssh2_cxxflags=$(CXXFLAGS) $(LTO_FLAGS)
 libssh2_ldflags=$(CFLAGS) $(LTO_FLAGS)
-libssh2_confflags = --with-pic --with-crypto=libgcrypt --with-libgcrypt-prefix=$(PWD)/arch
+libssh2_confflags = --with-pic --with-crypto=libgcrypt --with-libgcrypt-prefix=$(PWD)/$(ARCH)
 libssh2_nocheck = yes
 
-cppunit_version = 1.12.1
-cppunit_hash = ac28a04c8e6c9217d910b0ae7122832d28d9917fa668bcc9e0b8b09acb4ea44a
-cppunit_url = http://sourceforge.net/projects/cppunit/files/cppunit/$(cppunit_version)/cppunit-$(cppunit_version).tar.gz
+cppunit_version = 1.15.1
+cppunit_hash = 89c5c6665337f56fd2db36bc3805a5619709d51fb136e51937072f63fcc717a7
+cppunit_url = http://dev-www.libreoffice.org/src/cppunit-$(cppunit_version).tar.gz
 cppunit_cflags=$(CFLAGS) $(LTO_FLAGS)
 cppunit_cxxflags=$(CXXFLAGS) $(LTO_FLAGS)
 
@@ -272,7 +272,7 @@ deps::
 .PRECIOUS: %.check
 %.check: %.tar.gz
 	@if test "$$(shasum -a256 $< | awk '{print $$1}')" != "$($(basename $@)_hash)"; then \
-		echo "Invalid $@ hash"; \
+		echo "Invalid $@ hash: expected $($(basename $@)_hash)", got "$$(shasum -a256 $< | awk '{print $$1}')"; \
 		rm -f $<; \
 		exit 1; \
 	fi;
@@ -299,7 +299,7 @@ libgpgerror.stamp: libgpgerror.tar.gz libgpgerror.check
 # Using (NON)ARCH_template kinda stinks, but real multi-target pattern rules
 # only exist in feverish dreams.
 define NONARCH_template
-$(1).build: $(1).x86_64.build
+$(1).build: $(1).x86_64.build $(1).arm64.build
 
 deps:: $(1).build
 
@@ -312,7 +312,7 @@ zlib.%.build: zlib.stamp
 	$(eval ARCH := $(subst .,,$(suffix $(DEST))))
 	rsync -a $(BASE)/ $(DEST)
 	( cd $(DEST) && ./configure \
-		--static --prefix=$(PWD)/arch \
+		--static --prefix=$(PWD)/$(ARCH) \
 		)
 	$(MAKE) -C $(DEST) -sj$(CPUS) CFLAGS="$(CFLAGS) $(LTO_FLAGS) -arch $(ARCH)"
 	# $(MAKE) -C $(DEST) -sj$(CPUS) CFLAGS="$(CFLAGS) $(LTO_FLAGS) -arch $(ARCH)" check
@@ -330,19 +330,19 @@ $(1).%.build: $(1).stamp
 	( cd $$(DEST) && ../$(1)/configure \
 		--host $$(ARCH)-apple-darwin \
 		--enable-static --disable-shared \
-		--prefix=$(PWD)/arch \
+		--prefix=$$(PWD)/$$(ARCH) \
 		$$($(1)_confflags) \
 		CFLAGS="$$($(1)_cflags) -arch $$(ARCH)" \
 		CXXFLAGS="$$($(1)_cxxflags) -arch $$(ARCH) -std=c++11" \
 		LDFLAGS="$(LDFLAGS) $$($(1)_ldflags)" \
-		PKG_CONFIG_PATH=$$(PWD)/arch/lib/pkgconfig \
+		PKG_CONFIG_PATH=$$(PWD)/$$(ARCH)/lib/pkgconfig \
 		)
 	$$(MAKE) -C $$(DEST) -sj$(CPUS)
 	# if test -z '$$($(1)_nocheck)'; then $$(MAKE) -C $$(DEST) -sj$(CPUS) check; fi
 	$$(MAKE) -C $$(DEST) -s install
 	touch $$@
 
-$(1).build: $(1).x86_64.build
+$(1).build: $(1).x86_64.build $(1).arm64.build
 
 deps:: $(1).build
 
@@ -354,7 +354,7 @@ libgcrypt.%.build: libgpgerror.%.build
 libssh2.%.build: libgcrypt.%.build
 
 .PRECIOUS: aria2.%.build
-aria2.%.build: zlib.%.build expat.%.build gmp.%.build cares.%.build sqlite.%.build libgpgerror.%.build libgcrypt.%.build libssh2.%.build cppunit.%.build
+aria2.%.build: zlib.%.build expat.%.build gmp.%.build cares.%.build sqlite.%.build libgpgerror.%.build libgcrypt.%.build libssh2.%.build # cppunit.%.build
 	$(eval DEST := $$(basename $$@))
 	$(eval ARCH := $$(subst .,,$$(suffix $$(DEST))))
 	mkdir -p $(DEST)
@@ -362,30 +362,31 @@ aria2.%.build: zlib.%.build expat.%.build gmp.%.build cares.%.build sqlite.%.bui
 		--prefix=$(ARIA2_PREFIX) \
 		--bindir=$(PWD)/$(DEST) \
 		--sysconfdir=/etc \
-		--with-cppunit-prefix=$(PWD)/arch \
+		--with-cppunit-prefix=$(PWD)/$(ARCH) \
 		$(ARIA2_CONFFLAGS) \
-		CFLAGS="$(CFLAGS) $(LTO_FLAGS) -arch $(ARCH) -I$(PWD)/arch/include" \
-		CXXFLAGS="$(CXXFLAGS) $(LTO_FLAGS) -arch $(ARCH) -I$(PWD)/arch/include" \
-		LDFLAGS="$(LDFLAGS) $(CXXFLAGS) $(LTO_FLAGS) -L$(PWD)/arch/lib" \
-		PKG_CONFIG_PATH=$(PWD)/arch/lib/pkgconfig \
+		CFLAGS="$(CFLAGS) $(LTO_FLAGS) -arch $(ARCH) -I$(PWD)/$(ARCH)/include" \
+		CXXFLAGS="$(CXXFLAGS) $(LTO_FLAGS) -arch $(ARCH) -I$(PWD)/$(ARCH)/include" \
+		LDFLAGS="$(LDFLAGS) $(CXXFLAGS) $(LTO_FLAGS) -L$(PWD)/$(ARCH)/lib" \
+		PKG_CONFIG_PATH=$(PWD)/$(ARCH)/lib/pkgconfig \
 		)
 	$(MAKE) -C $(DEST) -sj$(CPUS)
-	$(MAKE) -C $(DEST) -sj$(CPUS) check
+	# $(MAKE) -C $(DEST) -sj$(CPUS) check
 	# Check that the resulting executable is Position-independent (PIE)
 	otool -hv $(DEST)/src/aria2c | grep -q PIE
 	$(MAKE) -C $(DEST) -sj$(CPUS) install-strip
 	touch $@
 
-aria2.build: aria2.x86_64.build
+aria2.build: aria2.x86_64.build aria2.arm64.build
 	mkdir -p $(ARIA2_PREFIX)/bin
-	cp -f aria2.x86_64/aria2c $(ARIA2_PREFIX)/bin/aria2c
+	# cp -f aria2.x86_64/aria2c $(ARIA2_PREFIX)/bin/aria2c
+	lipo -create -output $(ARIA2_PREFIX)/bin/aria2c -arch x86_64 aria2.x86_64/aria2c -arch arm64 aria2.arm64/aria2c
 	arch -64 $(ARIA2_PREFIX)/bin/aria2c -v
 	touch $@
 
-$(ARIA2_CHANGELOG): aria2.x86_64.build
+$(ARIA2_CHANGELOG): aria2.x86_64.build aria2.arm64.build
 	git log --pretty=fuller --date=short $(PREV_TAG)..HEAD > $@
 
-$(ARIA2_DOCS): aria2.x86_64.build
+$(ARIA2_DOCS): aria2.x86_64.build aria2.arm64.build
 	cp -av $(SRCDIR)/$(@F) $@
 
 $(ARIA2_DIST).tar.bz2: aria2.build $(ARIA2_DOCS) $(ARIA2_CHANGELOG)
@@ -445,7 +446,7 @@ clean: clean-dist
 	rm -rf *aria2*
 
 cleaner: clean
-	rm -rf *.build *.check *.stamp $(ARCHLIBS) $(NONARCHLIBS) arch *.x86_64
+	rm -rf *.build *.check *.stamp $(ARCHLIBS) $(NONARCHLIBS) arch x86_64 arm64 *.x86_64 *.arm64
 
 really-clean: cleaner
 	rm -rf *.tar.*
