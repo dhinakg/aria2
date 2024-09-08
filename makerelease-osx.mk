@@ -163,7 +163,7 @@ cppunit_cxxflags=$(CXXFLAGS) $(LTO_FLAGS)
 
 
 # ARCHLIBS that can be template build
-ARCHLIBS = expat cares sqlite gmp libgpgerror libgcrypt libssh2 cppunit
+ARCHLIBS = expat cares sqlite gmp libgpgerror libgcrypt libssh2 # cppunit
 # NONARCHLIBS that cannot be template build
 NONARCHLIBS = zlib
 
