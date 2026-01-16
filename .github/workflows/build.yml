@@ -28,7 +28,7 @@ jobs:
     env:
       NON_RELEASE: 1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Get tags
         run: git fetch --prune --unshallow --tags
 
