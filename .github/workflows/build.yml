@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-13, macos-14, macos-15, macos-15-intel, macos-26]
         deps_step:
           # - make deps
           # - make deps -j2
